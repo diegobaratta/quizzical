@@ -58,6 +58,7 @@ main{
   display: flex;
   flex-direction: row;
   justify-content: center;
+  align-items: center;
   gap: 30px;
 }
 
@@ -104,4 +105,13 @@ main{
 .answer:hover {
   background-color: #D6DBF5;
   cursor: pointer;
+}
+
+.resultText {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 20px;
+  text-align: center;
+  color: #293264;
 }
