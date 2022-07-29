@@ -3,14 +3,18 @@ import { nanoid } from 'https://cdn.jsdelivr.net/npm/nanoid/nanoid.js'
 
 function Game() {
 
-    const [questions, setQuestions] = useState([])    
+    const [questions, setQuestions] = useState([])  
+    const [result, setResult] = useState({
+                                finished: false, 
+                                score: 0
+                            })  
 
     async function getQuestions() {
 
         const resp = await fetch("https://opentdb.com/api.php?amount=5")
         const data = await resp.json()
 
-        const queArr = await data.results.map(({question, correct_answer, incorrect_answers}) => {
+        const questionsAPI = await data.results.map(({question, correct_answer, incorrect_answers}) => {
                     
             //Craft the array with all the answers
             const answers = incorrect_answers.map(answer => {
@@ -43,7 +47,7 @@ function Game() {
             })
         })
 
-        setQuestions(queArr)
+        setQuestions(questionsAPI)
     }
 
     useEffect(() => {
@@ -107,11 +111,19 @@ function Game() {
                     })
                 })
 
-                if(questions.length === rightAnswers){
-                    alert("You won!")
-                }else{
-                    alert("You lose!")
-                }
+                setResult({
+                            finished: true, 
+                            score: rightAnswers,
+                        })
+
+                break;
+            case 'playAgain':
+                setResult({
+                    finished: false,
+                    score: 0,
+                })
+
+                getQuestions()
 
                 break;
             default:
@@ -148,16 +160,16 @@ function Game() {
         
     }
     
-    const questionlist = questions.map(({answers, text, id}) => {        
-
+    const questionlist = questions.map(({answers, text, id: qId}) => {        
+        
         return (
-            <li className='question-group' key={id}>
+            <li className='question-group' key={qId}>
                 <h3 className='question'>{decodeHTMLCode(text)}</h3>
                 <ul className='answer-group'>
-                    {answers.map(answer => {
+                    {answers.map(({id: aId, text, bgColor, fontOpacity}) => {        
                         return (
-                            <li className='answer' key={answer.id} onClick={() => selectAnswer(id, answer.id)} style={{backgroundColor: answer.bgColor, opacity: answer.fontOpacity}}>
-                                {decodeHTMLCode(answer.text)}
+                            <li className='answer' key={aId} onClick={() => selectAnswer(qId, aId)} style={{backgroundColor: bgColor, opacity: fontOpacity}}>
+                                {decodeHTMLCode(text)}
                             </li>
                         )
                     })}
@@ -172,8 +184,19 @@ function Game() {
                {questionlist}
             </ol>
             <div className='game-buttons'>
-                <button className='btn' onClick={() => handleClick('shuffle')}>Shuffle Questions</button>
-                <button className='btn' onClick={() => handleClick('check')}>Check answers</button>
+                {
+                    result.finished ?
+                        <>
+                            <div className='resultText'>You scored {result.score}/{questions.length} correct answers</div>
+                            <button className='btn' onClick={() => handleClick('playAgain')}>Play Again</button>
+                        </> :
+                        <>
+                            <button className='btn' onClick={() => handleClick('shuffle')}>Shuffle Questions</button>
+                            <button className='btn' onClick={() => handleClick('check')}>Check answers</button>
+                        </>
+                }
+                
+                
             </div>
         </section>
     )
