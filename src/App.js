@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, Suspense, lazy } from 'react'
 import Blob from './components/Blob'
 import MainMenu from './components/MainMenu'
-import Game from './components/Game'
+const Game = lazy(() => import('./components/Game'));
+
 
 function App() {
 
@@ -14,7 +15,9 @@ function App() {
         {
           !start ?
           <MainMenu start={setStart} /> :
-          <Game />
+          <Suspense fallback={<h1>Loading..</h1>}>  
+            <Game />
+          </Suspense>
         }        
       </main>
       <Blob position='bottom' />
